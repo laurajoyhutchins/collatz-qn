@@ -5,8 +5,8 @@
 ---
 
 ## Quick Wins
-- [ ] **[P0]** Remove duplication of findings file: keep `reports/summary_findings.md` and delete or symlink `results/summary_findings.md` (single source of truth).
-- [ ] **[P0]** Fix `Makefile`:
+- [X] **[P0]** Remove duplication of findings file: keep `reports/summary_findings.md` and delete or symlink `results/summary_findings.md` (single source of truth).
+- [X] **[P0]** Fix `Makefile`:
   - add target `residuals` (calls `scripts/compute_and_plot_residuals.py`) and include it in `all`.  
   - drop redundant `data:` alias or make it depend on `counts`.  
   - add `help` target and phony guards; make `plots` depend on `counts`; make `fit` depend on `counts`.  

@@ -61,9 +61,24 @@ collatz-qn/
 
 ## Usage
 
-Requirements: Python 3.10+, packages in `requirements.txt`.
+Requirements: Python 3.10+.
+Dependencies and build requirements are managed via [`pyproject.toml`](./pyproject.toml).
+Install core dependencies with:
 
-Build pipeline:
+```bash
+python -m pip install .
+```
+
+Or for development (testing, linting, etc.):
+
+```bash
+python -m pip install .[dev]
+```
+
+You may also use `requirements.txt` for legacy installs.
+
+
+## Build pipeline
 
 ```bash
 # Unpack raw data
@@ -80,6 +95,7 @@ make plots
 ```
 
 Or run scripts directly, e.g.:
+
 ```bash
 python scripts/compute_counts.py
 python scripts/fit_zipf_models.py

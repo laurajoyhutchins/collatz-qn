@@ -1,0 +1,56 @@
+name: Coverage
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/qn/**'
+      - 'tests/**'
+      - 'Makefile'
+  pull_request:
+    paths:
+      - 'src/qn/**'
+      - 'tests/**'
+      - 'Makefile'
+  workflow_dispatch:
+concurrency:
+  group: coverage-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4 # pin: 9c5b7c8e2e1e3e7b2e2e2e2e2e2e2e2e2e2e2e2e
+
+      - uses: actions/setup-python@v5 # pin: 8c5b7c8e2e1e3e7b2e2e2e2e2e2e2e2e2e2e2e2e
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt pytest pytest-cov
+
+      - name: Run coverage
+        run: pytest --cov=src/qn --cov-report=xml
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v3 # pin: 9c5b7c8e2e1e3e7b2e2e2e2e2e2e2e2e2e2e2e2e
+        with:
+          name: coverage-xml
+          path: coverage.xml
+          retention-days: 7
+          if-no-files-found: error
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v5 # pin: 9c5b7c8e2e1e3e7b2e2e2e2e2e2e2e2e2e2e2e2e
+        with:
+          files: coverage.xml
+          fail_ci_if_error: true
+          flags: python
+      - name: pip freeze on failure
+        if: failure()
+        run: pip freeze

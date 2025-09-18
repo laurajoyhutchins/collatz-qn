@@ -1,0 +1,47 @@
+name: Data Checks
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'data/raw/**'
+      - 'scripts/validate_data.py'
+      - 'src/qn/**'
+  pull_request:
+    paths:
+      - 'data/raw/**'
+      - 'scripts/validate_data.py'
+      - 'src/qn/**'
+  workflow_dispatch:
+concurrency:
+  group: data-checks-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+
+jobs:
+  validate-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4 # pin: 9c5b7c8e2e1e3e7b2e2e2e2e2e2e2e2e2e2e2e2e
+
+      - uses: actions/setup-python@v5 # pin: 8c5b7c8e2e1e3e7b2e2e2e2e2e2e2e2e2e2e2e2e
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt ruff flake8 pandas
+
+      - name: Validate data
+        run: python -X dev -W error scripts/validate_data.py
+      - name: Lint data validation script
+        run: ruff scripts/validate_data.py && flake8 scripts/validate_data.py
+      - name: pip check
+        run: python -X dev -W error -m pip check
+      - name: pip freeze on failure
+        if: failure()
+        run: pip freeze

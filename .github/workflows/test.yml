@@ -1,0 +1,58 @@
+name: Test
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/qn/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - 'Makefile'
+  pull_request:
+    paths:
+      - 'src/qn/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - 'Makefile'
+  workflow_dispatch:
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ '3.10', '3.11', '3.12' ]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4 # pin: 9c5b7c8e2e1e3e7b2e2e2e2e2e2e2e2e2e2e2e2e
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5 # pin: 8c5b7c8e2e1e3e7b2e2e2e2e2e2e2e2e2e2e2e2e
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt pytest pytest-cov
+
+      - name: Run tests
+        run: pytest -q --maxfail=1 -ra --cov=src/qn --junitxml=pytest-junit.xml
+      - name: Upload JUnit XML
+        uses: actions/upload-artifact@v3 # pin: 9c5b7c8e2e1e3e7b2e2e2e2e2e2e2e2e2e2e2e2e
+        with:
+          name: junit-xml
+          path: pytest-junit.xml
+          retention-days: 7
+          if-no-files-found: warn
+      - name: pip freeze on failure
+        if: failure()
+        run: pip freeze
+        

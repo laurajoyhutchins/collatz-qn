@@ -1,0 +1,52 @@
+# .github/workflows/pre-commit.yml
+name: Pre-commit
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '.pre-commit-config.yaml'
+      - 'src/qn/**'
+      - 'scripts/**'
+      - 'Makefile'
+  pull_request:
+    paths:
+      - '.pre-commit-config.yaml'
+      - 'src/qn/**'
+      - 'scripts/**'
+      - 'Makefile'
+  workflow_dispatch:
+concurrency:
+  group: pre-commit-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4 # pin: 9c5b7c8e2e1e3e7b2e2e2e2e2e2e2e2e2e2e2e2e
+
+      - uses: actions/setup-python@v5 # pin: 8c5b7c8e2e1e3e7b2e2e2e2e2e2e2e2e2e2e2e2e
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Cache pre-commit
+        uses: actions/cache@v3 # pin: 9c5b7c8e2e1e3e7b2e2e2e2e2e2e2e2e2e2e2e2e
+        with:
+          path: ~/.cache/pre-commit
+          key: ${{ runner.os }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
+
+      - name: Install pre-commit
+        run: |
+          pip install --upgrade pip
+          pip install pre-commit
+
+      - name: Run pre-commit
+        run: pre-commit run -a --show-diff-on-failure
+      - name: pip freeze on failure
+        if: failure()
+        run: pip freeze
