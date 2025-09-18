@@ -1,0 +1,20 @@
+# Ignore extracted contents of qn_exponents_package.zip
+data/raw/unpacked/
+data/raw/qn_exponents_package/
+*.npz
+
+# Ignore any scratch or temp files
+*.tmp
+*.log
+*.bak
+*.swp
+
+# Ignore processed outputs that can be regenerated
+data/processed/
+figures/
+results/
+
+# Python cruft
+__pycache__/
+*.pyc
+.venv/

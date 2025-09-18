@@ -1,0 +1,7 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite it."
+title: "Prime factor frequencies in q(n)"
+date-released: "2025-09-18"
+authors:
+  - family-names: "YourSurname"
+    given-names: "YourName"
