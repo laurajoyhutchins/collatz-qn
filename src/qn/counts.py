@@ -7,6 +7,9 @@ Returns DataFrame with columns ['prime','count'].
 
 import pandas as pd, ast
 from collections import Counter
+
+# Primes excluded from frequency counting
+EXCLUDED_PRIMES = {2, 3}
 from .io import load_residue_support
 
 def build_prime_counts(df: pd.DataFrame) -> pd.DataFrame:
@@ -14,7 +17,7 @@ def build_prime_counts(df: pd.DataFrame) -> pd.DataFrame:
     df2["support_primes"] = df2["support_primes"].apply(ast.literal_eval)
     c = Counter()
     for primes in df2["support_primes"]:
-        c.update([p for p in primes if p not in (2,3)])
+        c.update([p for p in primes if p not in EXCLUDED_PRIMES])
     rows = []
     for p, cnt in c.items():
         rows.append({"prime": int(p), "count": int(cnt)})

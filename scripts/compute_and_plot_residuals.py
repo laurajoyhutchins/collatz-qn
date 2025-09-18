@@ -13,21 +13,18 @@ Usage:
   python scripts/compute_and_plot_residuals.py
 """
 
-import json, ast, numpy as np, pandas as pd
+import json, numpy as np, pandas as pd
 from qn.io import load_residue_support, processed_path
 from qn.fitting import grid_fit, residuals_table, predict_counts
 from qn.plots import plot_residuals_vs_prime, plot_observed_vs_predicted
+from qn.counts import build_prime_counts
 
 if __name__ == "__main__":
     df = load_residue_support()
-    df["support_primes"] = df["support_primes"].apply(ast.literal_eval)
-    counts = {}
-    for primes in df["support_primes"]:
-        for p in primes:
-            if p in (2,3): continue
-            counts[p] = counts.get(p, 0) + 1
-    primes = np.array(sorted(counts.keys()), dtype=float)
-    y = np.array([counts[int(p)] for p in primes], dtype=float)
+    # Get prime counts using centralized function
+    prime_counts = build_prime_counts(df)
+    primes = np.array(prime_counts["prime"].values, dtype=float)
+    y = np.array(prime_counts["count"].values, dtype=float)
 
     # Load best fit
     with open(processed_path("best_fit.json"), "r") as fh:
